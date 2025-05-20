@@ -143,3 +143,76 @@
         </div>
     </div>
 </div>
+
+<div class="visualization-section">
+    <!-- Interactive Roadmap Timeline -->
+    <div class="roadmap-container">
+        <h3>Feature Roadmap</h3>
+        <div class="timeline-controls">
+            <button class="btn btn-sm btn-outline-primary" id="zoomIn">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-primary" id="zoomOut">
+                <i class="fas fa-minus"></i>
+            </button>
+            <select class="form-select form-select-sm" id="timelineView">
+                <option value="month">Monthly View</option>
+                <option value="quarter">Quarterly View</option>
+                <option value="year">Yearly View</option>
+            </select>
+        </div>
+        <div class="interactive-timeline" id="featureTimeline"></div>
+    </div>
+
+    <!-- Dependency Graph -->
+    <div class="dependency-container">
+        <h3>Feature Dependencies</h3>
+        <div class="graph-controls">
+            <button class="btn btn-sm btn-outline-primary" id="expandAll">Expand All</button>
+            <button class="btn btn-sm btn-outline-primary" id="collapseAll">Collapse All</button>
+        </div>
+        <div class="dependency-graph" id="dependencyGraph"></div>
+    </div>
+
+    <!-- Resource Allocation -->
+    <div class="resource-container">
+        <h3>Resource Allocation</h3>
+        <div class="resource-filters">
+            <select class="form-select form-select-sm" id="resourceView">
+                <option value="team">By Team</option>
+                <option value="individual">By Individual</option>
+                <option value="project">By Project</option>
+            </select>
+        </div>
+        <div class="resource-chart" id="resourceAllocation"></div>
+    </div>
+
+    <!-- Custom Dashboard Widgets -->
+    <div class="widgets-container" id="customWidgets">
+        <div class="widgets-header">
+            <h3>Dashboard Widgets</h3>
+            <button class="btn btn-primary btn-sm" id="addWidget">
+                <i class="fas fa-plus"></i> Add Widget
+            </button>
+        </div>
+        <div class="widgets-grid" id="widgetsGrid">
+            <!-- Widgets will be dynamically added here -->
+        </div>
+    </div>
+</div>
+
+<!-- Drag & Drop Prioritization -->
+<div class="priority-board">
+    <div class="board-column" data-priority="high">
+        <h4>High Priority</h4>
+        <div class="feature-list" id="highPriority"></div>
+    </div>
+    <div class="board-column" data-priority="medium">
+        <h4>Medium Priority</h4>
+        <div class="feature-list" id="mediumPriority"></div>
+    </div>
+    <div class="board-column" data-priority="low">
+        <h4>Low Priority</h4>
+        <div class="feature-list" id="lowPriority"></div>
+    </div>
+</div>
