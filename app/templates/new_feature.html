@@ -1,0 +1,100 @@
+<div class="scoring-framework">
+    <h3>Prioritization Framework</h3>
+    <select class="form-select mb-3" id="scoringFramework">
+        <option value="basic">Basic Scoring</option>
+        <option value="rice">RICE Framework</option>
+        <option value="weighted">Weighted Priority</option>
+        <option value="cost-benefit">Cost-Benefit Analysis</option>
+    </select>
+
+    <!-- RICE Framework Fields -->
+    <div class="framework-fields rice-fields" style="display: none;">
+        <div class="mb-3">
+            <label for="reach" class="form-label">Reach (Monthly Users)</label>
+            <input type="number" class="form-control" id="reach" name="reach" min="0">
+            <small class="text-muted">How many users will this impact per month?</small>
+        </div>
+        
+        <div class="mb-3">
+            <label for="impact" class="form-label">Impact (0.25-3)</label>
+            <select class="form-select" id="impact" name="impact">
+                <option value="0.25">Minimal Impact (0.25x)</option>
+                <option value="0.5">Low Impact (0.5x)</option>
+                <option value="1">Medium Impact (1x)</option>
+                <option value="2">High Impact (2x)</option>
+                <option value="3">Massive Impact (3x)</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="confidence" class="form-label">Confidence (%)</label>
+            <input type="range" class="form-range" id="confidence" name="confidence" min="0" max="100">
+            <small class="text-muted">How confident are you in your estimates?</small>
+        </div>
+        
+        <div class="mb-3">
+            <label for="effort" class="form-label">Effort (Person-Months)</label>
+            <input type="number" class="form-control" id="effort" name="effort" min="0.1" step="0.1">
+        </div>
+    </div>
+
+    <!-- Weighted Priority Fields -->
+    <div class="framework-fields weighted-fields" style="display: none;">
+        <div class="mb-3">
+            <label class="form-label">Impact Weight</label>
+            <input type="range" class="form-range" id="impactWeight" min="1" max="5" value="3">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Effort Weight</label>
+            <input type="range" class="form-range" id="effortWeight" min="1" max="5" value="3">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Strategic Alignment Weight</label>
+            <input type="range" class="form-range" id="strategicWeight" min="1" max="5" value="3">
+        </div>
+    </div>
+
+    <!-- Cost-Benefit Fields -->
+    <div class="framework-fields cost-benefit-fields" style="display: none;">
+        <div class="mb-3">
+            <label for="implementationCost" class="form-label">Implementation Cost ($)</label>
+            <input type="number" class="form-control" id="implementationCost" name="implementationCost" min="0">
+        </div>
+        <div class="mb-3">
+            <label for="expectedRevenue" class="form-label">Expected Annual Revenue ($)</label>
+            <input type="number" class="form-control" id="expectedRevenue" name="expectedRevenue" min="0">
+        </div>
+        <div class="mb-3">
+            <label for="maintenanceCost" class="form-label">Annual Maintenance Cost ($)</label>
+            <input type="number" class="form-control" id="maintenanceCost" name="maintenanceCost" min="0">
+        </div>
+    </div>
+</div>
+
+<div class="scoring-results mt-4">
+    <h4>Priority Score Breakdown</h4>
+    <div class="score-visualization">
+        <canvas id="scoreBreakdown"></canvas>
+    </div>
+    <div class="score-details mt-3">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="score-card">
+                    <h5>RICE Score</h5>
+                    <div class="rice-formula">
+                        <span class="formula-item">Reach × Impact × Confidence</span>
+                        <span class="formula-divider">÷</span>
+                        <span class="formula-item">Effort</span>
+                    </div>
+                    <div class="final-score" id="riceScore">-</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="score-card">
+                    <h5>Cost-Benefit Ratio</h5>
+                    <div class="ratio-value" id="costBenefitRatio">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

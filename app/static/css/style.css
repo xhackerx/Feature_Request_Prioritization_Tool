@@ -448,3 +448,127 @@ body.high-contrast a {
     display: inline-block;
     margin-right: 0.5rem;
 }
+
+/* Scoring Framework Styles */
+.scoring-framework {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.framework-fields {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+}
+
+.score-visualization {
+    height: 300px;
+    margin-bottom: 1.5rem;
+}
+
+.score-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.rice-formula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.formula-item {
+    padding: 0.5rem 1rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: var(--border-radius);
+}
+
+.formula-divider {
+    font-weight: bold;
+    color: #333;
+}
+
+.final-score {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.ratio-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+/* Range Input Styling */
+.form-range {
+    height: 1.5rem;
+    padding: 0;
+    background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: var(--primary-color);
+}
+
+.form-range::-webkit-slider-runnable-track {
+    background: #dee2e6;
+    border-radius: 0.25rem;
+}
+
+/* Framework Toggle Animation */
+.framework-fields {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.framework-fields:not(.active) {
+    height: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+/* Cost-Benefit Visualization */
+.cost-benefit-chart {
+    position: relative;
+    height: 200px;
+    margin: 1rem 0;
+}
+
+.score-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.breakdown-item {
+    padding: 1rem;
+    background: rgba(33, 150, 243, 0.05);
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.breakdown-label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.breakdown-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
