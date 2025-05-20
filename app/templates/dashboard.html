@@ -14,30 +14,67 @@
             </select>
         </div>
 
-        <!-- Feature List -->
+        <!-- Feature List with Collaboration -->
         <div class="mt-4">
-            <h2 id="feature-list" tabindex="-1">Feature List</h2>
+            <h3>Feature List</h3>
             <div class="table-responsive">
-                <table class="table" role="grid" aria-labelledby="feature-list">
+                <table class="table">
                     <thead>
                         <tr>
-                            <th role="columnheader" aria-sort="none" tabindex="0">Title</th>
-                            <th role="columnheader" aria-sort="none" tabindex="0">Description</th>
-                            <th role="columnheader" aria-sort="none" tabindex="0">Impact</th>
-                            <th role="columnheader" aria-sort="none" tabindex="0">Effort</th>
-                            <th role="columnheader" aria-sort="none" tabindex="0">Strategic</th>
-                            <th role="columnheader" aria-sort="descending" tabindex="0">Priority Score</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Impact</th>
+                            <th>Effort</th>
+                            <th>Strategic</th>
+                            <th>Priority Score</th>
+                            <th>Votes</th>
+                            <th>Assigned To</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for feature in features %}
-                        <tr tabindex="0">
+                        <tr id="feature-{{ feature.id }}">
                             <td>{{ feature.title }}</td>
-                            <td>{{ feature.description[:100] }}{% if feature.description|length > 100 %}...{% endif %}</td>
-                            <td aria-label="Impact score: {{ feature.user_impact }} out of 10">{{ feature.user_impact }}/10</td>
-                            <td aria-label="Effort required: {{ feature.effort_required }} out of 10">{{ feature.effort_required }}/10</td>
-                            <td aria-label="Strategic alignment: {{ feature.strategic_alignment }} out of 10">{{ feature.strategic_alignment }}/10</td>
-                            <td aria-label="Priority score: {{ "%.2f"|format(feature.priority_score) }}">{{ "%.2f"|format(feature.priority_score) }}</td>
+                            <td>
+                                {{ feature.description[:100] }}
+                                {% if feature.description|length > 100 %}...{% endif %}
+                                <button class="btn btn-sm btn-link" data-bs-toggle="modal" 
+                                        data-bs-target="#discussionModal-{{ feature.id }}">
+                                    <i class="fas fa-comments"></i> Discuss
+                                </button>
+                            </td>
+                            <td>{{ feature.user_impact }}/10</td>
+                            <td>{{ feature.effort_required }}/10</td>
+                            <td>{{ feature.strategic_alignment }}/10</td>
+                            <td>{{ "%.2f"|format(feature.priority_score) }}</td>
+                            <td>
+                                <div class="vote-container">
+                                    <span class="vote-count">{{ feature.votes }}</span>
+                                    <button class="btn btn-sm btn-outline-primary vote-btn" 
+                                            onclick="emitVote({{ feature.id }}, 1)">
+                                        <i class="fas fa-thumbs-up"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm assignee-select" 
+                                        onchange="updateAssignment({{ feature.id }}, this.value)">
+                                    <option value="">Unassigned</option>
+                                    {% for member in team_members %}
+                                    <option value="{{ member.id }}" 
+                                            {% if feature.assignee_id == member.id %}selected{% endif %}>
+                                        {{ member.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary" 
+                                        onclick="showDiscussion({{ feature.id }})">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -46,251 +83,43 @@
         </div>
     </div>
     
-    <!-- Feedback Section -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h2 id="feedback-section" class="card-title">Feedback</h2>
-                <form action="{{ url_for('main.submit_feedback') }}" method="POST" role="form" aria-labelledby="feedback-section">
-                    <div class="mb-3">
-                        <label for="feedback" class="form-label">Your Feedback</label>
-                        <textarea class="form-control" id="feedback" name="feedback" rows="3" required 
-                                aria-required="true"></textarea>
+    <!-- Discussion Modal -->
+    {% for feature in features %}
+    <div class="modal fade" id="discussionModal-{{ feature.id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Discussion: {{ feature.title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="comments-container" id="comments-{{ feature.id }}">
+                        {% for comment in feature.comments %}
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">{{ comment.author }}</span>
+                                <span class="comment-date">{{ comment.created_at }}</span>
+                            </div>
+                            <div class="comment-content">{{ comment.content }}</div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
-                </form>
+                    <div class="comment-form mt-3">
+                        <textarea class="form-control" placeholder="Type your comment (@mention team members)"
+                                id="commentText-{{ feature.id }}"></textarea>
+                        <button class="btn btn-primary mt-2" 
+                                onclick="submitComment({{ feature.id }})">
+                            Add Comment
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    {% endfor %}
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // High Contrast Mode Toggle
-    const contrastToggle = document.getElementById('contrast-toggle');
-    contrastToggle.addEventListener('click', function() {
-        document.body.classList.toggle('high-contrast');
-        const isHighContrast = document.body.classList.contains('high-contrast');
-        localStorage.setItem('highContrast', isHighContrast);
-        this.setAttribute('aria-pressed', isHighContrast);
-    });
-
-    // Keyboard Navigation for Table
-    const table = document.querySelector('table');
-    table.addEventListener('keydown', function(e) {
-        const target = e.target;
-        if (target.role === 'columnheader') {
-            if (e.key === 'Enter' || e.key === ' ') {
-                // Sort column
-                e.preventDefault();
-                sortTable(target);
-            }
-        }
-    });
-
-    // Initialize high contrast mode from localStorage
-    if (localStorage.getItem('highContrast') === 'true') {
-        document.body.classList.add('high-contrast');
-        contrastToggle.setAttribute('aria-pressed', 'true');
-    }
-
-    const features = {{ features|map(attribute='title')|list|tojson }};
-    const scores = {{ features|map(attribute='priority_score')|list|tojson }};
-    const impacts = {{ features|map(attribute='user_impact')|list|tojson }};
-    const efforts = {{ features|map(attribute='effort_required')|list|tojson }};
-    
-    // Priority Chart
-    const priorityCtx = document.getElementById('priorityChart').getContext('2d');
-    const priorityChart = new Chart(priorityCtx, {
-        type: 'bar',
-        data: {
-            labels: features,
-            datasets: [{
-                label: 'Priority Score',
-                data: scores,
-                backgroundColor: scores.map(score => {
-                    if (score >= 70) return 'rgba(255, 99, 132, 0.2)';
-                    if (score >= 40) return 'rgba(255, 206, 86, 0.2)';
-                    return 'rgba(54, 162, 235, 0.2)';
-                }),
-                borderColor: scores.map(score => {
-                    if (score >= 70) return 'rgba(255, 99, 132, 1)';
-                    if (score >= 40) return 'rgba(255, 206, 86, 1)';
-                    return 'rgba(54, 162, 235, 1)';
-                }),
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100
-                }
-            }
-        }
-    });
-
-    // Impact vs Effort Matrix
-    const matrixCtx = document.getElementById('impactEffortMatrix').getContext('2d');
-    const matrixChart = new Chart(matrixCtx, {
-        type: 'scatter',
-        data: {
-            datasets: [{
-                label: 'Features',
-                data: features.map((feature, index) => ({
-                    x: efforts[index],
-                    y: impacts[index]
-                })),
-                backgroundColor: scores.map(score => {
-                    if (score >= 70) return 'rgba(255, 99, 132, 0.6)';
-                    if (score >= 40) return 'rgba(255, 206, 86, 0.6)';
-                    return 'rgba(54, 162, 235, 0.6)';
-                })
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Effort Required'
-                    },
-                    min: 0,
-                    max: 10
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'User Impact'
-                    },
-                    min: 0,
-                    max: 10
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${features[context.dataIndex]}: Impact ${impacts[context.dataIndex]}, Effort ${efforts[context.dataIndex]}`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Chart Type Selector
-    document.getElementById('chartType').addEventListener('change', function(e) {
-        priorityChart.config.type = e.target.value;
-        priorityChart.update();
-    });
-
-    // Feature Request Trends Chart
-    const trendCtx = document.getElementById('trendChart').getContext('2d');
-    new Chart(trendCtx, {
-        type: 'line',
-        data: {
-            labels: {{ dates|tojson }},
-            datasets: [{
-                label: 'New Requests',
-                data: {{ trend_data|tojson }},
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Feature Requests Over Time'
-                }
-            }
-        }
-    });
-
-    // Implementation Success Rate Chart
-    const successCtx = document.getElementById('successRateChart').getContext('2d');
-    new Chart(successCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Implemented', 'In Progress', 'Pending'],
-            datasets: [{
-                data: {{ success_rate_data|tojson }},
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(255, 99, 132, 0.8)'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-
-    // User Engagement Chart
-    const engagementCtx = document.getElementById('engagementChart').getContext('2d');
-    new Chart(engagementCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Comments', 'Votes', 'Shares'],
-            datasets: [{
-                label: 'Engagement Metrics',
-                data: {{ engagement_data|tojson }},
-                backgroundColor: 'rgba(54, 162, 235, 0.8)'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Priority Score Distribution Chart
-    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-    new Chart(distributionCtx, {
-        type: 'bar',
-        data: {
-            labels: ['0-20', '21-40', '41-60', '61-80', '81-100'],
-            datasets: [{
-                label: 'Number of Features',
-                data: {{ distribution_data|tojson }},
-                backgroundColor: 'rgba(153, 102, 255, 0.8)'
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Priority Score Distribution'
-                }
-            }
-        }
-    });
-});
-</script>
+<script src="{{ url_for('static', filename='js/websocket.js') }}"></script>
 {% endblock %}
 
 <div class="dashboard-header">
