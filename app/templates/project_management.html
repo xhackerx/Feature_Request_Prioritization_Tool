@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="project-management">
+    <!-- Sprint Planning -->
+    <div class="sprint-container">
+        <h3>Sprint Planning</h3>
+        <div class="sprint-header">
+            <div class="sprint-info">
+                <h4>Sprint #<span id="sprintNumber">12</span></h4>
+                <div class="sprint-dates">
+                    <span id="sprintStart">May 1</span> - <span id="sprintEnd">May 14</span>
+                </div>
+            </div>
+            <div class="sprint-actions">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#planSprintModal">
+                    <i class="fas fa-plus"></i> Plan Sprint
+                </button>
+            </div>
+        </div>
+        
+        <div class="sprint-board">
+            <div class="sprint-column" data-status="todo">
+                <h5>To Do</h5>
+                <div class="feature-list" id="sprintTodo"></div>
+            </div>
+            <div class="sprint-column" data-status="inProgress">
+                <h5>In Progress</h5>
+                <div class="feature-list" id="sprintInProgress"></div>
+            </div>
+            <div class="sprint-column" data-status="done">
+                <h5>Done</h5>
+                <div class="feature-list" id="sprintDone"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resource Allocation -->
+    <div class="resource-management">
+        <h3>Resource Allocation</h3>
+        <div class="resource-grid">
+            <div class="team-allocation">
+                <h4>Team Workload</h4>
+                <div class="allocation-chart" id="teamWorkload"></div>
+            </div>
+            <div class="capacity-planning">
+                <h4>Capacity Planning</h4>
+                <div class="capacity-chart" id="capacityPlanning"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Management -->
+    <div class="timeline-management">
+        <h3>Project Timeline</h3>
+        <div class="timeline-controls">
+            <select class="form-select" id="timelineView">
+                <option value="sprint">Sprint View</option>
+                <option value="month">Monthly View</option>
+                <option value="quarter">Quarterly View</option>
+            </select>
+        </div>
+        <div class="timeline-chart" id="projectTimeline"></div>
+    </div>
+
+    <!-- Dependency Management -->
+    <div class="dependency-management">
+        <h3>Feature Dependencies</h3>
+        <div class="dependency-graph" id="featureDependencies"></div>
+        <div class="dependency-list">
+            <h4>Critical Path</h4>
+            <ul class="critical-path-list" id="criticalPath"></ul>
+        </div>
+    </div>
+
+    <!-- Risk Assessment -->
+    <div class="risk-assessment">
+        <h3>Risk Assessment</h3>
+        <div class="risk-matrix">
+            <div class="risk-grid" id="riskMatrix"></div>
+            <div class="risk-legend">
+                <div class="risk-level high">High Risk</div>
+                <div class="risk-level medium">Medium Risk</div>
+                <div class="risk-level low">Low Risk</div>
+            </div>
+        </div>
+        <div class="risk-list">
+            <h4>Risk Register</h4>
+            <table class="table" id="riskRegister">
+                <thead>
+                    <tr>
+                        <th>Risk</th>
+                        <th>Impact</th>
+                        <th>Probability</th>
+                        <th>Mitigation</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

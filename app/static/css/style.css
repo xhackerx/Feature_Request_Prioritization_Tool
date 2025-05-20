@@ -876,3 +876,165 @@ body.high-contrast a {
     width: 0;
     transition: width 0.3s ease;
 }
+
+/* Project Management Styles */
+.project-management {
+    padding: 2rem 0;
+}
+
+/* Sprint Planning */
+.sprint-container {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.sprint-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.sprint-dates {
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.sprint-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.sprint-column {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+/* Resource Management */
+.resource-management {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.allocation-chart,
+.capacity-chart {
+    height: 300px;
+    margin-top: 1rem;
+}
+
+/* Timeline Management */
+.timeline-management {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.timeline-chart {
+    height: 400px;
+    margin-top: 1rem;
+}
+
+/* Dependency Management */
+.dependency-management {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.dependency-graph {
+    height: 400px;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+}
+
+.critical-path-list {
+    list-style: none;
+    padding: 0;
+}
+
+.critical-path-list li {
+    padding: 0.5rem;
+    border-left: 3px solid var(--primary-color);
+    margin-bottom: 0.5rem;
+    background: rgba(33, 150, 243, 0.05);
+}
+
+/* Risk Assessment */
+.risk-assessment {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.risk-matrix {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.risk-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+}
+
+.risk-level {
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.risk-level.high {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+.risk-level.medium {
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--secondary-color);
+}
+
+.risk-level.low {
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--primary-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sprint-board,
+    .resource-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .risk-matrix {
+        grid-template-columns: 1fr;
+    }
+}
