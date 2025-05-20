@@ -4,12 +4,14 @@ from .ml.priority_predictor import PriorityPredictor
 from .ml.feature_clusterer import FeatureClusterer
 from .ml.impact_predictor import ImpactPredictor
 from .ml.sentiment_analyzer import SentimentAnalyzer
+from .ml.effort_estimator import EffortEstimator
 
 db = SQLAlchemy()
 predictor = PriorityPredictor()
 clusterer = FeatureClusterer()
 impact_predictor = ImpactPredictor()
 sentiment_analyzer = SentimentAnalyzer()
+effort_estimator = EffortEstimator()
 
 class FeatureRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +29,36 @@ class FeatureRequest(db.Model):
     user_feedback_score = db.Column(db.Float, default=0)
     predicted_impact = db.Column(db.Float)
     impact_confidence = db.Column(db.Float)
+    complexity_score = db.Column(db.Integer, default=5)
+    dependencies_count = db.Column(db.Integer, default=0)
+    required_skills = db.Column(db.Integer, default=5)
+    testing_requirements = db.Column(db.Integer, default=5)
+    integration_complexity = db.Column(db.Integer, default=5)
+    documentation_needs = db.Column(db.Integer, default=3)
+    security_requirements = db.Column(db.Integer, default=3)
+    performance_impact = db.Column(db.Integer, default=3)
+    estimated_hours = db.Column(db.Float)
+    effort_confidence = db.Column(db.Float)
+    
+    def estimate_effort(self):
+        """Estimate implementation effort for this feature"""
+        feature_data = {
+            'complexity_score': self.complexity_score,
+            'dependencies_count': self.dependencies_count,
+            'required_skills': self.required_skills,
+            'testing_requirements': self.testing_requirements,
+            'integration_complexity': self.integration_complexity,
+            'documentation_needs': self.documentation_needs,
+            'security_requirements': self.security_requirements,
+            'performance_impact': self.performance_impact
+        }
+        
+        estimation = effort_estimator.predict_effort(feature_data)
+        
+        self.estimated_hours = estimation['estimated_hours']
+        self.effort_confidence = estimation['confidence_score']
+        
+        return estimation
     
     def predict_user_impact(self):
         """Predict the user impact of this feature"""
