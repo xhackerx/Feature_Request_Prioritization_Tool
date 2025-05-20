@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="customization-panel">
+    <!-- Custom Fields Manager -->
+    <div class="custom-fields-section">
+        <h3>Custom Fields</h3>
+        <div class="field-builder">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFieldModal">
+                <i class="fas fa-plus"></i> Add Custom Field
+            </button>
+            
+            <div class="custom-fields-list">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Field Name</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customFieldsList">
+                        <!-- Fields will be dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Customization -->
+    <div class="workflow-section">
+        <h3>Workflow Management</h3>
+        <div class="workflow-builder">
+            <div class="workflow-stages" id="workflowStages">
+                <div class="stage-list">
+                    <!-- Stages will be draggable -->
+                </div>
+            </div>
+            <div class="workflow-actions">
+                <button class="btn btn-outline-primary" id="addStage">Add Stage</button>
+                <button class="btn btn-outline-primary" id="addTransition">Add Transition</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Management -->
+    <div class="template-section">
+        <h3>Feature Templates</h3>
+        <div class="template-grid">
+            <div class="template-card new-template">
+                <div class="card-body">
+                    <h5>Create New Template</h5>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTemplateModal">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Existing templates will be populated here -->
+        </div>
+    </div>
+
+    <!-- Scoring Algorithm Builder -->
+    <div class="scoring-section">
+        <h3>Custom Scoring</h3>
+        <div class="algorithm-builder">
+            <div class="criteria-list">
+                <h4>Scoring Criteria</h4>
+                <div id="criteriaBuilder">
+                    <!-- Criteria components will be added here -->
+                </div>
+            </div>
+            <div class="formula-builder">
+                <h4>Score Formula</h4>
+                <div id="formulaEditor">
+                    <!-- Formula editor will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branding Options -->
+    <div class="branding-section">
+        <h3>Interface Branding</h3>
+        <div class="brand-options">
+            <div class="color-scheme">
+                <h4>Color Scheme</h4>
+                <div class="color-pickers">
+                    <div class="color-input">
+                        <label>Primary Color</label>
+                        <input type="color" id="primaryColor" class="form-control">
+                    </div>
+                    <div class="color-input">
+                        <label>Secondary Color</label>
+                        <input type="color" id="secondaryColor" class="form-control">
+                    </div>
+                    <div class="color-input">
+                        <label>Accent Color</label>
+                        <input type="color" id="accentColor" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="logo-upload">
+                <h4>Logo</h4>
+                <div class="upload-area" id="logoUpload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Drop your logo here or click to upload</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
