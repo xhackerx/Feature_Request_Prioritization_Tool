@@ -3,34 +3,41 @@
 {% block content %}
 <div class="row">
     <div class="col-md-8">
-        <h2>Feature Requests Dashboard</h2>
-        <canvas id="priorityChart" width="400" height="200"></canvas>
+        <h1 id="dashboard-title" tabindex="-1">Feature Requests Dashboard</h1>
         
+        <!-- Chart Controls -->
+        <div class="chart-controls" role="toolbar" aria-label="Chart controls">
+            <select class="form-select" id="chartType" aria-label="Select chart type">
+                <option value="bar">Bar Chart</option>
+                <option value="pie">Pie Chart</option>
+                <option value="radar">Radar Chart</option>
+            </select>
+        </div>
+
+        <!-- Feature List -->
         <div class="mt-4">
-            <h3>Feature List</h3>
+            <h2 id="feature-list" tabindex="-1">Feature List</h2>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table" role="grid" aria-labelledby="feature-list">
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Impact</th>
-                            <th>Effort</th>
-                            <th>Strategic</th>
-                            <th>Priority Score</th>
-                            <th>Created</th>
+                            <th role="columnheader" aria-sort="none" tabindex="0">Title</th>
+                            <th role="columnheader" aria-sort="none" tabindex="0">Description</th>
+                            <th role="columnheader" aria-sort="none" tabindex="0">Impact</th>
+                            <th role="columnheader" aria-sort="none" tabindex="0">Effort</th>
+                            <th role="columnheader" aria-sort="none" tabindex="0">Strategic</th>
+                            <th role="columnheader" aria-sort="descending" tabindex="0">Priority Score</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for feature in features %}
-                        <tr class="{% if feature.priority_score >= 70 %}priority-high{% elif feature.priority_score >= 40 %}priority-medium{% else %}priority-low{% endif %}">
+                        <tr tabindex="0">
                             <td>{{ feature.title }}</td>
                             <td>{{ feature.description[:100] }}{% if feature.description|length > 100 %}...{% endif %}</td>
-                            <td>{{ feature.user_impact }}/10</td>
-                            <td>{{ feature.effort_required }}/10</td>
-                            <td>{{ feature.strategic_alignment }}/10</td>
-                            <td>{{ "%.2f"|format(feature.priority_score) }}</td>
-                            <td>{{ feature.created_date.strftime('%Y-%m-%d') }}</td>
+                            <td aria-label="Impact score: {{ feature.user_impact }} out of 10">{{ feature.user_impact }}/10</td>
+                            <td aria-label="Effort required: {{ feature.effort_required }} out of 10">{{ feature.effort_required }}/10</td>
+                            <td aria-label="Strategic alignment: {{ feature.strategic_alignment }} out of 10">{{ feature.strategic_alignment }}/10</td>
+                            <td aria-label="Priority score: {{ "%.2f"|format(feature.priority_score) }}">{{ "%.2f"|format(feature.priority_score) }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -39,13 +46,16 @@
         </div>
     </div>
     
+    <!-- Feedback Section -->
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Feedback</h5>
-                <form action="{{ url_for('main.submit_feedback') }}" method="POST">
+                <h2 id="feedback-section" class="card-title">Feedback</h2>
+                <form action="{{ url_for('main.submit_feedback') }}" method="POST" role="form" aria-labelledby="feedback-section">
                     <div class="mb-3">
-                        <textarea class="form-control" name="feedback" rows="3" required></textarea>
+                        <label for="feedback" class="form-label">Your Feedback</label>
+                        <textarea class="form-control" id="feedback" name="feedback" rows="3" required 
+                                aria-required="true"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit Feedback</button>
                 </form>
@@ -56,25 +66,54 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('priorityChart').getContext('2d');
+    // High Contrast Mode Toggle
+    const contrastToggle = document.getElementById('contrast-toggle');
+    contrastToggle.addEventListener('click', function() {
+        document.body.classList.toggle('high-contrast');
+        const isHighContrast = document.body.classList.contains('high-contrast');
+        localStorage.setItem('highContrast', isHighContrast);
+        this.setAttribute('aria-pressed', isHighContrast);
+    });
+
+    // Keyboard Navigation for Table
+    const table = document.querySelector('table');
+    table.addEventListener('keydown', function(e) {
+        const target = e.target;
+        if (target.role === 'columnheader') {
+            if (e.key === 'Enter' || e.key === ' ') {
+                // Sort column
+                e.preventDefault();
+                sortTable(target);
+            }
+        }
+    });
+
+    // Initialize high contrast mode from localStorage
+    if (localStorage.getItem('highContrast') === 'true') {
+        document.body.classList.add('high-contrast');
+        contrastToggle.setAttribute('aria-pressed', 'true');
+    }
+
     const features = {{ features|map(attribute='title')|list|tojson }};
     const scores = {{ features|map(attribute='priority_score')|list|tojson }};
+    const impacts = {{ features|map(attribute='user_impact')|list|tojson }};
+    const efforts = {{ features|map(attribute='effort_required')|list|tojson }};
     
-    new Chart(ctx, {
+    // Priority Chart
+    const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+    const priorityChart = new Chart(priorityCtx, {
         type: 'bar',
         data: {
             labels: features,
             datasets: [{
                 label: 'Priority Score',
                 data: scores,
-                backgroundColor: features.map(f => {
-                    const score = scores[features.indexOf(f)];
+                backgroundColor: scores.map(score => {
                     if (score >= 70) return 'rgba(255, 99, 132, 0.2)';
                     if (score >= 40) return 'rgba(255, 206, 86, 0.2)';
                     return 'rgba(54, 162, 235, 0.2)';
                 }),
-                borderColor: features.map(f => {
-                    const score = scores[features.indexOf(f)];
+                borderColor: scores.map(score => {
                     if (score >= 70) return 'rgba(255, 99, 132, 1)';
                     if (score >= 40) return 'rgba(255, 206, 86, 1)';
                     return 'rgba(54, 162, 235, 1)';
@@ -89,17 +128,163 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     max: 100
                 }
+            }
+        }
+    });
+
+    // Impact vs Effort Matrix
+    const matrixCtx = document.getElementById('impactEffortMatrix').getContext('2d');
+    const matrixChart = new Chart(matrixCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Features',
+                data: features.map((feature, index) => ({
+                    x: efforts[index],
+                    y: impacts[index]
+                })),
+                backgroundColor: scores.map(score => {
+                    if (score >= 70) return 'rgba(255, 99, 132, 0.6)';
+                    if (score >= 40) return 'rgba(255, 206, 86, 0.6)';
+                    return 'rgba(54, 162, 235, 0.6)';
+                })
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Effort Required'
+                    },
+                    min: 0,
+                    max: 10
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'User Impact'
+                    },
+                    min: 0,
+                    max: 10
+                }
             },
             plugins: {
-                legend: {
-                    display: false
-                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `Priority Score: ${context.raw.toFixed(2)}`;
+                            return `${features[context.dataIndex]}: Impact ${impacts[context.dataIndex]}, Effort ${efforts[context.dataIndex]}`;
                         }
                     }
+                }
+            }
+        }
+    });
+
+    // Chart Type Selector
+    document.getElementById('chartType').addEventListener('change', function(e) {
+        priorityChart.config.type = e.target.value;
+        priorityChart.update();
+    });
+
+    // Feature Request Trends Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ dates|tojson }},
+            datasets: [{
+                label: 'New Requests',
+                data: {{ trend_data|tojson }},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Feature Requests Over Time'
+                }
+            }
+        }
+    });
+
+    // Implementation Success Rate Chart
+    const successCtx = document.getElementById('successRateChart').getContext('2d');
+    new Chart(successCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Implemented', 'In Progress', 'Pending'],
+            datasets: [{
+                data: {{ success_rate_data|tojson }},
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(255, 99, 132, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // User Engagement Chart
+    const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+    new Chart(engagementCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Comments', 'Votes', 'Shares'],
+            datasets: [{
+                label: 'Engagement Metrics',
+                data: {{ engagement_data|tojson }},
+                backgroundColor: 'rgba(54, 162, 235, 0.8)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Priority Score Distribution Chart
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    new Chart(distributionCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20', '21-40', '41-60', '61-80', '81-100'],
+            datasets: [{
+                label: 'Number of Features',
+                data: {{ distribution_data|tojson }},
+                backgroundColor: 'rgba(153, 102, 255, 0.8)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Priority Score Distribution'
                 }
             }
         }
@@ -107,3 +292,25 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+<div class="dashboard-header">
+    <div class="filters">
+        <select class="form-select" id="timeRange">
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+        </select>
+        <input type="text" class="form-control" placeholder="Search features...">
+    </div>
+</div>
+
+<div class="charts-container">
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="priorityChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="impactEffortMatrix"></canvas>
+        </div>
+    </div>
+</div>
