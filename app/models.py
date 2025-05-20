@@ -1,9 +1,11 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from .ml.priority_predictor import PriorityPredictor
+from .ml.feature_clusterer import FeatureClusterer
 
 db = SQLAlchemy()
 predictor = PriorityPredictor()
+clusterer = FeatureClusterer()
 
 class FeatureRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -46,6 +48,18 @@ class FeatureRequest(db.Model):
             (effort_score * effort_weight) +
             (self.strategic_alignment * strategic_weight)
         ) * 10
+    
+    @classmethod
+    def find_similar_requests(cls, description):
+        """Find similar feature requests"""
+        existing_features = cls.query.all()
+        return clusterer.find_similar_features(description, existing_features)
+    
+    @classmethod
+    def get_feature_clusters(cls):
+        """Get clustered feature requests"""
+        features = cls.query.all()
+        return clusterer.cluster_features(features)
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)

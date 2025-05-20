@@ -45,3 +45,31 @@ def api_features():
         'effort_required': f.effort_required,
         'strategic_alignment': f.strategic_alignment
     } for f in features])
+
+@main.route('/api/similar-features', methods=['POST'])
+def find_similar_features():
+    description = request.json.get('description', '')
+    similar_features = FeatureRequest.find_similar_requests(description)
+    
+    return jsonify([{
+        'id': feature.id,
+        'title': feature.title,
+        'description': feature.description,
+        'similarity_score': float(score)
+    } for feature, score in similar_features])
+
+@main.route('/api/feature-clusters')
+def get_feature_clusters():
+    clusters = FeatureRequest.get_feature_clusters()
+    
+    return jsonify({
+        str(cluster_id): {
+            'features': [{
+                'id': f.id,
+                'title': f.title,
+                'description': f.description,
+                'priority_score': f.priority_score
+            } for f in cluster['features']],
+            'key_terms': cluster['key_terms']
+        } for cluster_id, cluster in clusters.items()
+    })
