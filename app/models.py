@@ -1,7 +1,9 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from .ml.priority_predictor import PriorityPredictor
 
 db = SQLAlchemy()
+predictor = PriorityPredictor()
 
 class FeatureRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,21 +16,36 @@ class FeatureRequest(db.Model):
     priority_score = db.Column(db.Float)
 
     def calculate_priority_score(self):
-        # Priority scoring algorithm
+        # Get ML prediction
+        prediction = predictor.predict_priority(self)
+        
+        # Combine ML prediction with rule-based score
+        rule_based_score = self._calculate_rule_based_score()
+        
+        # Weight between ML and rule-based (adjustable)
+        ml_weight = 0.7
+        rule_weight = 0.3
+        
+        self.priority_score = (
+            prediction['predicted_score'] * ml_weight +
+            rule_based_score * rule_weight
+        )
+        
+        return self.priority_score
+    
+    def _calculate_rule_based_score(self):
+        # Original scoring logic
         impact_weight = 0.4
         effort_weight = 0.3
         strategic_weight = 0.3
         
-        # Effort is inverse (lower effort = higher score)
         effort_score = (11 - self.effort_required)
         
-        self.priority_score = (
+        return (
             (self.user_impact * impact_weight) +
             (effort_score * effort_weight) +
             (self.strategic_alignment * strategic_weight)
         ) * 10
-
-        return self.priority_score
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
