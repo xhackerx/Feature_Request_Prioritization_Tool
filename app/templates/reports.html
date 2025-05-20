@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="reports-section">
+    <!-- Custom Report Builder -->
+    <div class="report-builder">
+        <h3>Custom Report Builder</h3>
+        <div class="builder-controls">
+            <div class="report-sections">
+                <h4>Select Report Sections</h4>
+                <div class="section-checkboxes">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="featureMetrics">
+                        <label class="form-check-label" for="featureMetrics">Feature Metrics</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="priorityAnalysis">
+                        <label class="form-check-label" for="priorityAnalysis">Priority Analysis</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="resourceAllocation">
+                        <label class="form-check-label" for="resourceAllocation">Resource Allocation</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="roiPredictions">
+                        <label class="form-check-label" for="roiPredictions">ROI Predictions</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="export-options">
+                <h4>Export Options</h4>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" id="exportPDF">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                    <button class="btn btn-outline-primary" id="exportExcel">
+                        <i class="fas fa-file-excel"></i> Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Scheduling -->
+    <div class="report-scheduling">
+        <h3>Schedule Reports</h3>
+        <form class="schedule-form">
+            <div class="mb-3">
+                <label for="reportType" class="form-label">Report Type</label>
+                <select class="form-select" id="reportType">
+                    <option value="summary">Summary Report</option>
+                    <option value="detailed">Detailed Analysis</option>
+                    <option value="metrics">Metrics Report</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="frequency" class="form-label">Frequency</label>
+                <select class="form-select" id="frequency">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="recipients" class="form-label">Recipients</label>
+                <input type="text" class="form-control" id="recipients" placeholder="Enter email addresses">
+            </div>
+            <button type="submit" class="btn btn-primary">Schedule Report</button>
+        </form>
+    </div>
+
+    <!-- ROI Prediction Model -->
+    <div class="roi-prediction">
+        <h3>ROI Prediction Model</h3>
+        <div class="prediction-inputs">
+            <div class="mb-3">
+                <label for="implementationCost" class="form-label">Implementation Cost ($)</label>
+                <input type="number" class="form-control" id="implementationCost">
+            </div>
+            <div class="mb-3">
+                <label for="timeToMarket" class="form-label">Time to Market (months)</label>
+                <input type="number" class="form-control" id="timeToMarket">
+            </div>
+            <div class="mb-3">
+                <label for="projectedRevenue" class="form-label">Projected Annual Revenue ($)</label>
+                <input type="number" class="form-control" id="projectedRevenue">
+            </div>
+        </div>
+        <div class="prediction-results">
+            <canvas id="roiChart"></canvas>
+        </div>
+    </div>
+</div>
