@@ -1175,6 +1175,167 @@ body.high-contrast a {
     color: var(--primary-color);
 }
 
+/* User Research Integration Styles */
+.feedback-portal {
+    padding: 2rem 0;
+}
+
+/* Feedback Collection */
+.feedback-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.feedback-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Survey Integration */
+.survey-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.survey-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.survey-card {
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    transition: transform var(--transition-speed);
+}
+
+.survey-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* A/B Testing Results */
+.ab-testing-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.results-filters {
+    margin-bottom: 1rem;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.test-card {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+/* Interview Notes */
+.interview-section {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.interview-filters {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.interview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.interview-note {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Feedback Analytics */
+.feedback-analytics {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.analytics-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.metric-card {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.metric-card canvas {
+    width: 100%;
+    height: 200px;
+}
+
+/* Interactive Elements */
+.feedback-tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tag-feature {
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--primary-color);
+}
+
+.tag-bug {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+}
+
+.tag-improvement {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+}
+
+/* Chart Tooltips */
+.chart-tooltip {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .sprint-board,
@@ -1196,5 +1357,13 @@ body.high-contrast a {
         padding-right: 0;
         padding-bottom: 1rem;
         margin-bottom: 1rem;
+    }
+
+    .interview-filters {
+        grid-template-columns: 1fr;
+    }
+    
+    .analytics-dashboard {
+        grid-template-columns: 1fr;
     }
 }

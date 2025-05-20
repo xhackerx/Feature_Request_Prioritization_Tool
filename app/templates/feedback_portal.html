@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="feedback-portal">
+    <!-- User Feedback Collection -->
+    <div class="feedback-section">
+        <h3>Share Your Feedback</h3>
+        <div class="feedback-form">
+            <form id="userFeedbackForm">
+                <div class="mb-3">
+                    <label for="feedbackType" class="form-label">Feedback Type</label>
+                    <select class="form-select" id="feedbackType" required>
+                        <option value="feature">Feature Request</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="improvement">Improvement Suggestion</option>
+                        <option value="experience">User Experience</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="feedbackTitle" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="feedbackTitle" required>
+                </div>
+                <div class="mb-3">
+                    <label for="feedbackDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="feedbackDescription" rows="4" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="attachments" class="form-label">Attachments</label>
+                    <input type="file" class="form-control" id="attachments" multiple>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Survey Integration -->
+    <div class="survey-section">
+        <h3>Active Surveys</h3>
+        <div class="survey-list" id="activeSurveys">
+            <!-- Survey cards will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- A/B Testing Results -->
+    <div class="ab-testing-section">
+        <h3>A/B Testing Insights</h3>
+        <div class="test-results">
+            <div class="results-filters">
+                <select class="form-select" id="testFilter">
+                    <option value="active">Active Tests</option>
+                    <option value="completed">Completed Tests</option>
+                    <option value="all">All Tests</option>
+                </select>
+            </div>
+            <div class="results-grid" id="testResults">
+                <!-- Test result cards will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview Notes -->
+    <div class="interview-section">
+        <h3>User Interview Notes</h3>
+        <div class="interview-filters">
+            <input type="text" class="form-control" placeholder="Search interviews...">
+            <select class="form-select">
+                <option value="recent">Most Recent</option>
+                <option value="feature">By Feature</option>
+                <option value="sentiment">By Sentiment</option>
+            </select>
+        </div>
+        <div class="interview-list" id="interviewNotes">
+            <!-- Interview notes will be added here -->
+        </div>
+    </div>
+
+    <!-- Customer Feedback Analytics -->
+    <div class="feedback-analytics">
+        <h3>Feedback Analytics</h3>
+        <div class="analytics-dashboard">
+            <div class="metric-card">
+                <h4>Sentiment Analysis</h4>
+                <canvas id="sentimentChart"></canvas>
+            </div>
+            <div class="metric-card">
+                <h4>Feature Requests</h4>
+                <canvas id="requestsChart"></canvas>
+            </div>
+            <div class="metric-card">
+                <h4>User Satisfaction</h4>
+                <canvas id="satisfactionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
