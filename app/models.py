@@ -3,11 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from .ml.priority_predictor import PriorityPredictor
 from .ml.feature_clusterer import FeatureClusterer
 from .ml.impact_predictor import ImpactPredictor
+from .ml.sentiment_analyzer import SentimentAnalyzer
 
 db = SQLAlchemy()
 predictor = PriorityPredictor()
 clusterer = FeatureClusterer()
 impact_predictor = ImpactPredictor()
+sentiment_analyzer = SentimentAnalyzer()
 
 class FeatureRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -100,3 +102,46 @@ class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    sentiment = db.Column(db.String(20))
+    sentiment_confidence = db.Column(db.Float)
+    aspect_sentiments = db.Column(db.JSON)
+    key_phrases = db.Column(db.JSON)
+    
+    def analyze_sentiment(self):
+        """Analyze the sentiment of the feedback"""
+        analysis = sentiment_analyzer.analyze_feedback(self.content)
+        
+        self.sentiment = analysis['overall_sentiment']
+        self.sentiment_confidence = analysis['confidence']
+        self.aspect_sentiments = analysis['aspects']
+        self.key_phrases = analysis['key_phrases']
+        
+        return analysis
+    
+    @classmethod
+    def get_sentiment_summary(cls):
+        """Get summary of sentiment analysis for all feedback"""
+        feedbacks = cls.query.all()
+        
+        summary = {
+            'total_count': len(feedbacks),
+            'sentiment_distribution': defaultdict(int),
+            'aspect_summary': defaultdict(lambda: {
+                'positive': 0,
+                'negative': 0,
+                'total': 0
+            }),
+            'top_phrases': defaultdict(int)
+        }
+        
+        for feedback in feedbacks:
+            summary['sentiment_distribution'][feedback.sentiment] += 1
+            
+            for aspect, data in feedback.aspect_sentiments.items():
+                summary['aspect_summary'][aspect][data['sentiment'].lower()] += 1
+                summary['aspect_summary'][aspect]['total'] += 1
+            
+            for phrase in feedback.key_phrases:
+                summary['top_phrases'][phrase['phrase']] += 1
+        
+        return summary
