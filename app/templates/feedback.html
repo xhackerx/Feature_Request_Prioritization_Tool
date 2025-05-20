@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>Feedback</h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="{{ url_for('main.submit_feedback') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label">Your Feedback</label>
+                        <textarea class="form-control" id="feedback" name="feedback" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

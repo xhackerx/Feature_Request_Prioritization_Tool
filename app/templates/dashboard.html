@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Feature Requests Dashboard</h2>
+        <canvas id="priorityChart" width="400" height="200"></canvas>
+        
+        <div class="mt-4">
+            <h3>Feature List</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Impact</th>
+                            <th>Effort</th>
+                            <th>Strategic</th>
+                            <th>Priority Score</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for feature in features %}
+                        <tr class="{% if feature.priority_score >= 70 %}priority-high{% elif feature.priority_score >= 40 %}priority-medium{% else %}priority-low{% endif %}">
+                            <td>{{ feature.title }}</td>
+                            <td>{{ feature.description[:100] }}{% if feature.description|length > 100 %}...{% endif %}</td>
+                            <td>{{ feature.user_impact }}/10</td>
+                            <td>{{ feature.effort_required }}/10</td>
+                            <td>{{ feature.strategic_alignment }}/10</td>
+                            <td>{{ "%.2f"|format(feature.priority_score) }}</td>
+                            <td>{{ feature.created_date.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Feedback</h5>
+                <form action="{{ url_for('main.submit_feedback') }}" method="POST">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="feedback" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('priorityChart').getContext('2d');
+    const features = {{ features|map(attribute='title')|list|tojson }};
+    const scores = {{ features|map(attribute='priority_score')|list|tojson }};
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: features,
+            datasets: [{
+                label: 'Priority Score',
+                data: scores,
+                backgroundColor: features.map(f => {
+                    const score = scores[features.indexOf(f)];
+                    if (score >= 70) return 'rgba(255, 99, 132, 0.2)';
+                    if (score >= 40) return 'rgba(255, 206, 86, 0.2)';
+                    return 'rgba(54, 162, 235, 0.2)';
+                }),
+                borderColor: features.map(f => {
+                    const score = scores[features.indexOf(f)];
+                    if (score >= 70) return 'rgba(255, 99, 132, 1)';
+                    if (score >= 40) return 'rgba(255, 206, 86, 1)';
+                    return 'rgba(54, 162, 235, 1)';
+                }),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Priority Score: ${context.raw.toFixed(2)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

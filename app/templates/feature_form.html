@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>New Feature Request</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="title" class="form-label">Feature Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="user_impact" class="form-label">User Impact (1-10)</label>
+                <input type="number" class="form-control" id="user_impact" name="user_impact" min="1" max="10" required>
+                <small class="text-muted">How many users will this feature benefit?</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="effort_required" class="form-label">Effort Required (1-10)</label>
+                <input type="number" class="form-control" id="effort_required" name="effort_required" min="1" max="10" required>
+                <small class="text-muted">How much development effort is needed?</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="strategic_alignment" class="form-label">Strategic Alignment (1-10)</label>
+                <input type="number" class="form-control" id="strategic_alignment" name="strategic_alignment" min="1" max="10" required>
+                <small class="text-muted">How well does this align with company strategy?</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit Feature Request</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

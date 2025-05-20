@@ -1,0 +1,36 @@
+.priority-high {
+    background-color: rgba(255, 99, 132, 0.1);
+}
+
+.priority-medium {
+    background-color: rgba(255, 206, 86, 0.1);
+}
+
+.priority-low {
+    background-color: rgba(54, 162, 235, 0.1);
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.text-muted {
+    font-size: 0.875rem;
+}
+
+.navbar {
+    margin-bottom: 2rem;
+}
+
+.chart-container {
+    margin-bottom: 2rem;
+}
