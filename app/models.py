@@ -2,10 +2,12 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from .ml.priority_predictor import PriorityPredictor
 from .ml.feature_clusterer import FeatureClusterer
+from .ml.impact_predictor import ImpactPredictor
 
 db = SQLAlchemy()
 predictor = PriorityPredictor()
 clusterer = FeatureClusterer()
+impact_predictor = ImpactPredictor()
 
 class FeatureRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,8 +18,41 @@ class FeatureRequest(db.Model):
     strategic_alignment = db.Column(db.Integer, nullable=False)  # Scale 1-10
     created_date = db.Column(db.DateTime, default=datetime.utcnow)
     priority_score = db.Column(db.Float)
-
+    user_base_size = db.Column(db.Integer, default=0)
+    active_users_percent = db.Column(db.Float, default=0)
+    market_demand = db.Column(db.Integer, default=0)
+    competitor_presence = db.Column(db.Integer, default=0)
+    user_feedback_score = db.Column(db.Float, default=0)
+    predicted_impact = db.Column(db.Float)
+    impact_confidence = db.Column(db.Float)
+    
+    def predict_user_impact(self):
+        """Predict the user impact of this feature"""
+        feature_data = {
+            'user_base_size': self.user_base_size,
+            'active_users_percent': self.active_users_percent,
+            'feature_complexity': self.effort_required,
+            'market_demand': self.market_demand,
+            'competitor_presence': self.competitor_presence,
+            'user_feedback_score': self.user_feedback_score,
+            'strategic_alignment': self.strategic_alignment
+        }
+        
+        prediction = impact_predictor.predict_impact(feature_data)
+        
+        self.predicted_impact = prediction['predicted_impact']
+        self.impact_confidence = prediction['confidence_score']
+        
+        return prediction
+    
     def calculate_priority_score(self):
+        # First predict user impact
+        impact_prediction = self.predict_user_impact()
+        
+        # Update user_impact based on prediction if confidence is high
+        if impact_prediction['confidence_score'] > 70:
+            self.user_impact = round(impact_prediction['predicted_impact'])
+        
         # Get ML prediction
         prediction = predictor.predict_priority(self)
         
