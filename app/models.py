@@ -6,6 +6,7 @@ from .ml.feature_clusterer import FeatureClusterer
 from .ml.impact_predictor import ImpactPredictor
 from .ml.sentiment_analyzer import SentimentAnalyzer
 from .ml.effort_estimator import EffortEstimator
+from .cache import cache_key, set_cache, get_cache, invalidate_cache
 
 db = SQLAlchemy()
 predictor = PriorityPredictor()
@@ -103,18 +104,12 @@ class FeatureRequest(db.Model):
             rule_based_score * rule_weight
         )
         
+        # Invalidate cache after score update
+        invalidate_cache('features:*')
+        
         # Emit update event after priority score calculation
         socketio.emit('features_update', {
-            'features': [
-                {
-                    'id': f.id,
-                    'title': f.title,
-                    'priority_score': f.priority_score,
-                    'user_impact': f.user_impact,
-                    'effort_required': f.effort_required,
-                    'strategic_alignment': f.strategic_alignment
-                } for f in FeatureRequest.query.order_by(FeatureRequest.priority_score.desc()).all()
-            ]
+            'features': self.get_all_features()
         }, broadcast=True)
         
         return self.priority_score
@@ -192,3 +187,31 @@ class Feedback(db.Model):
                 summary['top_phrases'][phrase['phrase']] += 1
         
         return summary
+    
+    @classmethod
+    def get_all_features(cls):
+        """Get all features with caching"""
+        cache_k = cache_key('features', 'all')
+        features = get_cache(cache_k)
+        
+        if features is None:
+            features = [
+                {
+                    'id': f.id,
+                    'title': f.title,
+                    'priority_score': f.priority_score,
+                    'user_impact': f.user_impact,
+                    'effort_required': f.effort_required,
+                    'strategic_alignment': f.strategic_alignment
+                } for f in cls.query.order_by(cls.priority_score.desc()).all()
+            ]
+            set_cache(cache_k, features)
+        
+        return features
+    
+    def save(self):
+        """Save feature and invalidate cache"""
+        db.session.add(self)
+        db.session.commit()
+        invalidate_cache('features:*')
+        return self
