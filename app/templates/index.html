@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Feature Requests</h2>
+        <div id="feature-list" class="list-group mb-4"></div>
+        
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newFeatureModal">
+            Add New Feature
+        </button>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Priority Distribution</h5>
+                <canvas id="priorityChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Impact vs Effort</h5>
+                <canvas id="impactEffortChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Feature Modal -->
+<div class="modal fade" id="newFeatureModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Feature Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="featureForm">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">User Impact (1-10)</label>
+                        <input type="number" class="form-control" name="user_impact" min="1" max="10" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Effort Required (1-10)</label>
+                        <input type="number" class="form-control" name="effort_required" min="1" max="10" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Strategic Alignment (1-10)</label>
+                        <input type="number" class="form-control" name="strategic_alignment" min="1" max="10" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="submitFeature">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Replace the existing socket initialization
+const socket = io({
+    transports: ['websocket', 'polling'],
+    path: '/socket.io'
+});
+
+// Load features when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize charts first
+    initCharts();
+    
+    // Then load the features
+    fetch('/api/features')
+        .then(response => response.json())
+        .then(data => {
+            updateFeatureList(data);
+        })
+        .catch(error => console.error('Error:', error));
+});
+
+// Socket.IO event handlers
+socket.on('connect', () => {
+    console.log('Connected to server');
+});
+
+socket.on('features_update', (data) => {
+    updateFeatureList(data.features);
+});
+
+socket.on('feature_deleted', (data) => {
+    const featureElement = document.querySelector(`[data-feature-id="${data.feature_id}"]`);
+    if (featureElement) {
+        featureElement.remove();
+        // Refresh the feature list to update charts
+        fetch('/api/features')
+            .then(response => response.json())
+            .then(data => {
+                updateFeatureList(data);
+            });
+    }
+});
+
+// Update feature list function
+function updateFeatureList(features) {
+    const featureList = document.getElementById('feature-list');
+    featureList.innerHTML = '';
+    
+    if (!Array.isArray(features)) {
+        features = features.features || [];
+    }
+    
+    features.forEach(feature => {
+        const item = document.createElement('div');
+        item.className = 'list-group-item';
+        item.setAttribute('data-feature-id', feature.id);
+        item.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-1">${feature.title}</h5>
+                <span class="badge bg-primary rounded-pill">Score: ${feature.priority_score.toFixed(1)}</span>
+            </div>
+            <p class="mb-1">${feature.description}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small>
+                    Impact: ${feature.user_impact} | 
+                    Effort: ${feature.effort_required} | 
+                    Alignment: ${feature.strategic_alignment}
+                </small>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary vote-btn" data-id="${feature.id}" data-vote="up">
+                        👍 <span class="vote-count">0</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger vote-btn" data-id="${feature.id}" data-vote="down">
+                        👎 <span class="vote-count">0</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${feature.id}">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+        `;
+        featureList.appendChild(item);
+    });
+
+    // Update charts
+    updateCharts(features);
+}
+let priorityChart, impactEffortChart;
+
+// Load features when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/features')
+        .then(response => response.json())
+        .then(data => {
+            updateFeatureList(data.features);
+            initCharts();
+        })
+        .catch(error => console.error('Error:', error));
+});
+
+// Initialize charts
+function initCharts() {
+    // Priority Chart initialization
+    const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+    priorityChart = new Chart(priorityCtx, {
+        type: 'bar',
+        data: {
+            labels: ['High', 'Medium', 'Low'],
+            datasets: [{
+                label: 'Features',
+                data: [0, 0, 0],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+        }
+    });
+
+    // Impact vs Effort Chart initialization
+    const impactEffortCtx = document.getElementById('impactEffortChart').getContext('2d');
+    impactEffortChart = new Chart(impactEffortCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Features',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                pointRadius: 8
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Effort Required'
+                    },
+                    min: 0,
+                    max: 10
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'User Impact'
+                    },
+                    min: 0,
+                    max: 10
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Impact: ${context.parsed.y}, Effort: ${context.parsed.x}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Update feature list
+function updateFeatureList(features) {
+    const featureList = document.getElementById('feature-list');
+    featureList.innerHTML = '';
+    
+    features.forEach(feature => {
+        const item = document.createElement('div');
+        item.className = 'list-group-item';
+        item.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-1">${feature.title}</h5>
+                <span class="badge bg-primary rounded-pill">Score: ${feature.priority_score.toFixed(1)}</span>
+            </div>
+            <p class="mb-1">${feature.description}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small>
+                    Impact: ${feature.user_impact} | 
+                    Effort: ${feature.effort_required} | 
+                    Alignment: ${feature.strategic_alignment}
+                </small>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary vote-btn" data-id="${feature.id}" data-vote="up">
+                        👍 <span class="vote-count">0</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger vote-btn" data-id="${feature.id}" data-vote="down">
+                        👎 <span class="vote-count">0</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${feature.id}">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+        `;
+        featureList.appendChild(item);
+    });
+
+    // Update charts
+    updateCharts(features);
+}
+
+// Update charts with new data
+function updateCharts(features) {
+    // Update priority distribution
+    const priorities = features.reduce((acc, feature) => {
+        if (feature.priority_score >= 7) acc[0]++;
+        else if (feature.priority_score >= 4) acc[1]++;
+        else acc[2]++;
+        return acc;
+    }, [0, 0, 0]);
+    
+    priorityChart.data.datasets[0].data = priorities;
+    priorityChart.update();
+
+    // Update impact vs effort chart
+    const scatterData = features.map(feature => ({
+        x: feature.effort_required,
+        y: feature.user_impact,
+        title: feature.title
+    }));
+    
+    impactEffortChart.data.datasets[0].data = scatterData;
+    impactEffortChart.update();
+}
+
+// Socket.IO event handlers
+socket.on('connect', () => {
+    console.log('Connected to server');
+});
+
+socket.on('features_update', (data) => {
+    updateFeatureList(data.features);
+});
+
+// Add delete feature functionality
+document.getElementById('feature-list').addEventListener('click', (e) => {
+    if (e.target.classList.contains('delete-btn')) {
+        const featureId = e.target.dataset.id;
+        if (confirm('Are you sure you want to delete this feature?')) {
+            // Find and remove the feature element immediately after confirmation
+            const featureElement = e.target.closest('.list-group-item');
+            if (featureElement) {
+                featureElement.remove();
+            }
+
+            fetch(`/api/features/${featureId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Refresh only the charts
+                fetch('/api/features')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateCharts(data);
+                    });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to delete feature. Please try again.');
+                // If deletion failed, refresh the list to restore the item
+                fetch('/api/features')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateFeatureList(data);
+                    });
+            });
+        }
+    }
+});
+
+// Form submission
+document.getElementById('submitFeature').addEventListener('click', () => {
+    const form = document.getElementById('featureForm');
+    const formData = new FormData(form);
+    
+    const jsonData = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        user_impact: parseInt(formData.get('user_impact')),
+        effort_required: parseInt(formData.get('effort_required')),
+        strategic_alignment: parseInt(formData.get('strategic_alignment'))
+    };
+    
+    fetch('/api/features', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Refresh the feature list
+        fetch('/api/features')
+            .then(response => response.json())
+            .then(features => {
+                updateFeatureList(features);
+                socket.emit('request_update');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newFeatureModal'));
+                modal.hide();
+                form.reset();
+            });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', initCharts);
+
+// Vote handlers
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('vote-btn')) {
+        const featureId = e.target.dataset.id;
+        const voteType = e.target.dataset.vote;
+        
+        fetch(`/api/features/${featureId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ vote: voteType })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const countElement = e.target.querySelector('.vote-count');
+            countElement.textContent = data.votes;
+        });
+    }
+});
+</script>
+{% endblock %}

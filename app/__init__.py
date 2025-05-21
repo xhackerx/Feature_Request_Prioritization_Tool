@@ -6,7 +6,12 @@ from .models import db
 from .cache import init_redis
 from .models.mongo_manager import MongoManager
 
-socketio = SocketIO()
+socketio = SocketIO(
+    cors_allowed_origins="*",
+    async_mode='threading',
+    logger=True,
+    engineio_logger=True
+)
 mongo = MongoManager()
 
 def create_app(config_class=Config):
@@ -24,6 +29,9 @@ def create_app(config_class=Config):
     
     from .routes import main
     app.register_blueprint(main)
+    
+    # Import and register Socket.IO event handlers
+    from . import events
     
     with app.app_context():
         db.create_all()

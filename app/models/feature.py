@@ -28,6 +28,12 @@ class FeatureRequest(db.Model):
         )
         return self.priority_score
     
+    def delete(self):
+        """Delete the feature from the database"""
+        db.session.delete(self)
+        db.session.commit()
+        return True
+    
     def to_dict(self):
         return {
             'id': self.id,
