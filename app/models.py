@@ -7,6 +7,7 @@ from .ml.impact_predictor import ImpactPredictor
 from .ml.sentiment_analyzer import SentimentAnalyzer
 from .ml.effort_estimator import EffortEstimator
 from .cache import cache_key, set_cache, get_cache, invalidate_cache
+from .search.elastic_manager import ElasticManager
 
 db = SQLAlchemy()
 predictor = PriorityPredictor()
@@ -14,6 +15,7 @@ clusterer = FeatureClusterer()
 impact_predictor = ImpactPredictor()
 sentiment_analyzer = SentimentAnalyzer()
 effort_estimator = EffortEstimator()
+elastic = ElasticManager()
 
 class FeatureRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -215,3 +217,22 @@ class Feedback(db.Model):
         db.session.commit()
         invalidate_cache('features:*')
         return self
+    
+    def save(self):
+        """Save the feature and index it in Elasticsearch"""
+        db.session.add(self)
+        db.session.commit()
+        elastic.index_feature(self)
+        return self
+    
+    def delete(self):
+        """Delete the feature and remove from Elasticsearch"""
+        elastic.delete_feature(self.id)
+        db.session.delete(self)
+        db.session.commit()
+    
+    @classmethod
+    def search(cls, query, filters=None, sort_by=None):
+        """Search features using Elasticsearch"""
+        results = elastic.search_features(query, filters, sort_by)
+        return [cls.query.get(hit['_id']) for hit in results]

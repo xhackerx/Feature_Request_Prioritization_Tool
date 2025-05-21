@@ -50,3 +50,36 @@ def get_plugins():
     """Get all available plugins"""
     plugins = Plugin.query.all()
     return jsonify([plugin.to_dict() for plugin in plugins])
+
+@api.route('/api/v1/features/search', methods=['GET'])
+def search_features():
+    """Search features with advanced filtering"""
+    query = request.args.get('q', '')
+    
+    # Parse filters from query parameters
+    filters = {}
+    if request.args.get('min_impact'):
+        filters['user_impact'] = (
+            int(request.args.get('min_impact')),
+            int(request.args.get('max_impact', 10))
+        )
+    if request.args.get('min_effort'):
+        filters['effort_required'] = (
+            int(request.args.get('min_effort')),
+            int(request.args.get('max_effort', 10))
+        )
+    if request.args.get('min_priority'):
+        filters['priority_score'] = (
+            float(request.args.get('min_priority')),
+            float(request.args.get('max_priority', 10.0))
+        )
+    
+    # Parse sorting parameters
+    sort_by = {}
+    if request.args.get('sort'):
+        sort_field = request.args.get('sort')
+        sort_order = request.args.get('order', 'desc')
+        sort_by[sort_field] = sort_order
+    
+    features = FeatureRequest.search(query, filters, sort_by)
+    return jsonify([feature.to_dict() for feature in features])

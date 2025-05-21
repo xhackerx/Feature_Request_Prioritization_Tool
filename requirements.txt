@@ -12,3 +12,5 @@ graphene>=3.0
 Flask-GraphQL>=2.0.0
 Flask-Redis==0.4.0
 redis>=4.0.0
+elasticsearch>=7.17.0
+elasticsearch-dsl>=7.4.0
