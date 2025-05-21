@@ -1,10 +1,7 @@
 ```
 # 🚀 Feature Request Prioritization Tool
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)]
-(LICENSE)
-
-A simple, open-source tool for product managers to prioritize feature 
+A simple open-source tool for product managers to prioritize feature 
 requests efficiently.
 
 ## 🤔 Problem Statement
@@ -32,7 +29,7 @@ alignment scoring
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/feature-prioritization-tool.
+git clone https://github.com/xhackerx/feature-prioritization-tool.
 git
 cd feature-prioritization-tool
 ```
@@ -84,7 +81,7 @@ Please adhere to our CODE_OF_CONDUCT.md . Any contributions are expected to foll
 ## 📞 Contact
 Have questions or suggestions? Reach out:
 
-- Email: your.email@example.com
+- Email: grade.broom6352@eagereverest.com
 - Discord: Join our community
 ## 💬 Feedback
 Your feedback is invaluable! Please share your thoughts and suggestions in the Issues section.
