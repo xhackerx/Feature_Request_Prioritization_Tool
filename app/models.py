@@ -8,6 +8,7 @@ from .ml.sentiment_analyzer import SentimentAnalyzer
 from .ml.effort_estimator import EffortEstimator
 from .cache import cache_key, set_cache, get_cache, invalidate_cache
 from .search.elastic_manager import ElasticManager
+from .models.mongo_manager import MongoManager
 
 db = SQLAlchemy()
 predictor = PriorityPredictor()
@@ -16,6 +17,8 @@ impact_predictor = ImpactPredictor()
 sentiment_analyzer = SentimentAnalyzer()
 effort_estimator = EffortEstimator()
 elastic = ElasticManager()
+
+mongo = MongoManager()
 
 class FeatureRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -236,3 +239,54 @@ class Feedback(db.Model):
         """Search features using Elasticsearch"""
         results = elastic.search_features(query, filters, sort_by)
         return [cls.query.get(hit['_id']) for hit in results]
+    
+    def save(self):
+        """Save feature and track changes"""
+        is_new = self.id is None
+        
+        if not is_new:
+            old_data = FeatureRequest.query.get(self.id).to_dict()
+        
+        db.session.add(self)
+        db.session.commit()
+        
+        if not is_new:
+            # Track changes
+            new_data = self.to_dict()
+            changes = {
+                k: {'old': old_data.get(k), 'new': v}
+                for k, v in new_data.items()
+                if old_data.get(k) != v
+            }
+            if changes:
+                mongo.track_feature_changes(self.id, changes)
+        
+        return self
+    
+    def store_analysis(self, analysis_data):
+        """Store analysis results in MongoDB"""
+        return mongo.store_analysis_results(self.id, analysis_data)
+    
+    def get_analysis_history(self):
+        """Get feature analysis history"""
+        return mongo.get_analysis_history(self.id)
+    
+    def add_user_feedback(self, feedback_data):
+        """Add user feedback"""
+        return mongo.store_user_feedback(self.id, feedback_data)
+    
+    def get_user_feedback(self):
+        """Get all user feedback"""
+        return mongo.get_user_feedback(self.id)
+    
+    def get_change_history(self):
+        """Get feature change history"""
+        return mongo.get_feature_history(self.id)
+    
+    def store_ml_metrics(self, metrics):
+        """Store ML metrics"""
+        return mongo.store_ml_metrics(self.id, metrics)
+    
+    def get_aggregated_metrics(self):
+        """Get aggregated metrics"""
+        return mongo.aggregate_feature_metrics(self.id)

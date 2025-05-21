@@ -8,3 +8,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///feature_requests.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL') or 'http://localhost:9200'
+    MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/')
