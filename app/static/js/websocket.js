@@ -1,32 +1,35 @@
-const socket = new WebSocket(`ws://${window.location.host}/ws`);
+const socket = io();
 
-socket.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    switch(data.type) {
-        case 'vote':
-            updateVoteCount(data.featureId, data.votes);
-            break;
-        case 'comment':
-            addNewComment(data.comment);
-            break;
-        case 'assignment':
-            updateAssignment(data.featureId, data.assignee);
-            break;
-    }
-};
+socket.on('connect', () => {
+    console.log('Connected to WebSocket server');
+});
 
-function emitVote(featureId, vote) {
-    socket.send(JSON.stringify({
-        type: 'vote',
-        featureId: featureId,
-        vote: vote
-    }));
+socket.on('features_update', (data) => {
+    updateFeatureList(data.features);
+});
+
+function updateFeatureList(features) {
+    const featureList = document.getElementById('feature-list');
+    if (!featureList) return;
+
+    featureList.innerHTML = '';
+    features.forEach(feature => {
+        const featureElement = document.createElement('div');
+        featureElement.className = 'feature-item';
+        featureElement.innerHTML = `
+            <h3>${feature.title}</h3>
+            <div class="score-info">
+                <span class="priority-score">Priority: ${feature.priority_score.toFixed(2)}</span>
+                <span class="impact">Impact: ${feature.user_impact}</span>
+                <span class="effort">Effort: ${feature.effort_required}</span>
+                <span class="alignment">Strategic: ${feature.strategic_alignment}</span>
+            </div>
+        `;
+        featureList.appendChild(featureElement);
+    });
 }
 
-function emitComment(featureId, comment) {
-    socket.send(JSON.stringify({
-        type: 'comment',
-        featureId: featureId,
-        comment: comment
-    }));
-}
+// Request updates periodically
+setInterval(() => {
+    socket.emit('request_update');
+}, 30000); // Update every 30 seconds

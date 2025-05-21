@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from . import socketio
 from .ml.priority_predictor import PriorityPredictor
 from .ml.feature_clusterer import FeatureClusterer
 from .ml.impact_predictor import ImpactPredictor
@@ -101,6 +102,20 @@ class FeatureRequest(db.Model):
             prediction['predicted_score'] * ml_weight +
             rule_based_score * rule_weight
         )
+        
+        # Emit update event after priority score calculation
+        socketio.emit('features_update', {
+            'features': [
+                {
+                    'id': f.id,
+                    'title': f.title,
+                    'priority_score': f.priority_score,
+                    'user_impact': f.user_impact,
+                    'effort_required': f.effort_required,
+                    'strategic_alignment': f.strategic_alignment
+                } for f in FeatureRequest.query.order_by(FeatureRequest.priority_score.desc()).all()
+            ]
+        }, broadcast=True)
         
         return self.priority_score
     
