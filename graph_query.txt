@@ -1,0 +1,72 @@
+1. Query all features:
+```
+query {
+  features {
+    id
+    title
+    description
+    userImpact
+    effortRequired
+    strategicAlignment
+    priorityScore
+  }
+}
+```
+2. Query specific feature:
+```
+query {
+  feature(id: 1) {
+    id
+    title
+    description
+    priorityScore
+  }
+}
+```
+3. Create new feature:
+```
+mutation {
+  createFeature(input: {
+    title: "API Integration"
+    description: "Add third-party API integration support"
+    userImpact: 8
+    effortRequired: 6
+    strategicAlignment: 7
+  }) {
+    feature {
+      id
+      title
+      priorityScore
+    }
+  }
+}
+```
+4. Update feature:
+```
+mutation {
+  updateFeature(
+    id: 1
+    input: {
+      title: "Enhanced API Integration"
+      description: "Improved third-party API integration support"
+      userImpact: 9
+      effortRequired: 6
+      strategicAlignment: 8
+    }
+  ) {
+    feature {
+      id
+      title
+      priorityScore
+    }
+  }
+}
+```
+5. Delete feature:
+```
+mutation {
+  deleteFeature(id: 1) {
+    success
+  }
+}
+```
