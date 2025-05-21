@@ -23,8 +23,8 @@ def create_app(config_class=Config):
     # Add Redis configuration
     app.config['REDIS_URL'] = 'redis://localhost:6379/0'
     
-    db.init_app(app)
-    socketio.init_app(app)
+    db.init_app(app)  # Duplicate
+    socketio.init_app(app)  # Duplicate
     init_redis(app)
     
     from .routes import main
