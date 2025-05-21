@@ -7,24 +7,19 @@ from .cache import init_redis
 from .models.mongo_manager import MongoManager
 
 socketio = SocketIO()
-
-from .models.mongo_manager import MongoManager
-
 mongo = MongoManager()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
-    db.init_app(app)
-    socketio.init_app(app)
-    mongo.init_app(app)
-    
     # Add Redis configuration
     app.config['REDIS_URL'] = 'redis://localhost:6379/0'
     
-    db.init_app(app)  # Duplicate
-    socketio.init_app(app)  # Duplicate
+    # Initialize all extensions
+    db.init_app(app)
+    socketio.init_app(app)
+    mongo.init_app(app)
     init_redis(app)
     
     from .routes import main
